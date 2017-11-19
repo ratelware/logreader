@@ -1,6 +1,6 @@
 #include <memory>
-#include <executor/configurator.h>
-#include <executor/application.h>
+#include <executor/configurator.hpp>
+#include <executor/application.hpp>
 
 #include <boost/program_options/variables_map.hpp>
 

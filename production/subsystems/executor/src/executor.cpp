@@ -1,10 +1,10 @@
-#include <executor/executor.h>
 #include <boost/program_options.hpp>
 
-#include <executor/options.h>
-#include <executor/version.h>
-#include <executor/configurator.h>
-#include <executor/application.h>
+#include <executor/executor.hpp>
+#include <executor/options.hpp>
+#include <executor/version.hpp>
+#include <executor/configurator.hpp>
+#include <executor/application.hpp>
 
 #include <numeric>
 

@@ -4,9 +4,9 @@ SET(USE_BOOST ON CACHE BOOL "Use Boost for this project")
 
 IF(${USE_BOOST})
     SET(Boost_VERSION "1.65.1" CACHE STRING "Required version of Boost to use")
-	SET(Boost_REQUIRED_LIBRARIES unit_test_framework program_options CACHE LIST "Used Boost libraries")
+    SET(Boost_REQUIRED_LIBRARIES unit_test_framework program_options filesystem CACHE LIST "Used Boost libraries")
     SET(Boost_USE_STATIC_LIBS ON CACHE BOOL "Use Boost static libraries?")
-    SET(Boost_USE_STATIC_RUNTIME ON CACHE BOOL "Use Boost static runtime libraries?")
+    SET(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "Use Boost static runtime libraries?")
     SET(Boost_USE_MULTITHREADED ON CACHE BOOL "Use multithreaded version of Boost libraries?")
 ENDIF(${USE_BOOST})
 

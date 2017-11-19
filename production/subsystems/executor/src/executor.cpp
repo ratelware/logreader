@@ -79,7 +79,7 @@ namespace executor
 		for (auto& v : params)
 			all_defaulted = all_defaulted && v.second.defaulted();
 
-		if (params.count("help") || all_defaulted)
+		if (params.count("help"))
 			std::cout << all_options;
 		else if (params.count("version"))
 			std::cout << APPLICATION_NAME << " v." << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_SUBMINOR << std::endl;

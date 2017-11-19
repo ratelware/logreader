@@ -32,3 +32,4 @@ bin
 out
 build
 build_premake
+Win32

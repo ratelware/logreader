@@ -3,7 +3,6 @@
 #include <fstream>
 #include <algorithm>
 #include <set>
-#include <cstring>
 
 namespace datasource
 {
@@ -46,6 +45,7 @@ namespace datasource
 			auto beginning = analyzed.cbegin();
 			auto size_before = content_rows.size();
 			auto start = analyzed.cbegin();
+			// if this becomes too slow, use std::memchr
 			auto end = std::find(start, analyzed.cend(), LINE_TERMINATOR);
 			while (end != analyzed.cend()) {
 				content_rows.push_back(std::make_pair(start, end));

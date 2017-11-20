@@ -7,3 +7,6 @@
 [submodule "buildsystem/CMake/ucm"]
 	path = buildsystem/CMake/ucm
 	url = https://github.com/onqtam/ucm
+[submodule "production/libs/hyperscan/hyperscan"]
+	path = production/libs/hyperscan/hyperscan
+	url = https://github.com/intel/hyperscan.git

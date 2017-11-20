@@ -13,3 +13,6 @@
 [submodule "2017-11-01"]
 	path = production/libs/re2/re2
 	url = https://github.com/google/re2.git
+[submodule "v1.5.5"]
+	path = production/libs/nana/nana
+	url = https://github.com/cnjinhao/nana.git

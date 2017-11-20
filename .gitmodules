@@ -10,3 +10,6 @@
 [submodule "production/libs/hyperscan/hyperscan"]
 	path = production/libs/hyperscan/hyperscan
 	url = https://github.com/intel/hyperscan.git
+[submodule "2017-11-01"]
+	path = production/libs/re2/re2
+	url = https://github.com/google/re2.git

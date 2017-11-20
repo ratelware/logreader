@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <set>
 
+#include <re2/stringpiece.h>
+
 namespace datasource
 {
 	void data_source::readfile(const boost::filesystem::path& p, const std::shared_ptr<data_sink>& sink) {
@@ -79,12 +81,15 @@ namespace datasource
 		children.erase(std::remove_if(children.begin(), children.end(), [](std::weak_ptr<data_sink> it) { return it.lock().get() == nullptr; }), children.end());
 	}
 
-	grepping_data_sink::grepping_data_sink(const boost::regex& regex): regex(regex) {}
+	grepping_data_sink::grepping_data_sink(std::unique_ptr<re2::RE2>&& regex): regex(std::move(regex)) {}
 
 	boost::optional<data_sink::entry_range> grepping_data_sink::do_consume(const data_sink::entry_range& items) {
+
 		auto item_count_before = entries.size();
+		auto bufferPiece = re2::StringPiece("");
 		for (auto i = items.first; i != items.second; ++i) {
-			if (boost::regex_search(i->first, i->second, regex)) {
+			auto piece = re2::StringPiece(i->first._Ptr, std::distance(i->first, i->second));
+			if (regex->Match(piece, 0, std::distance(i->first, i->second), re2::RE2::UNANCHORED, &bufferPiece, 1)) {
 				entries.push_back(*i);
 			};
 		}

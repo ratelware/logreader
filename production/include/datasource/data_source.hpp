@@ -4,7 +4,8 @@
 #include <deque>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/regex.hpp>
+#include <re2/re2.h>
+
 
 namespace datasource {
 	typedef std::string datatype;
@@ -41,12 +42,12 @@ namespace datasource {
 
 	class grepping_data_sink : public data_sink {
 	public:
-		grepping_data_sink(const boost::regex& regex);
+		grepping_data_sink(std::unique_ptr<re2::RE2>&& regex);
 
 		virtual boost::optional<entry_range> do_consume(const entry_range&);
 
 	private:
-		boost::regex regex;
+		std::unique_ptr<re2::RE2> regex;
 	};
 
 	class data_source {

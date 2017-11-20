@@ -3,6 +3,7 @@
 #include <fstream>
 #include <algorithm>
 #include <set>
+#include <cstring>
 
 namespace datasource
 {
@@ -44,12 +45,14 @@ namespace datasource
 			auto analyzed = datatype(carry).append(buffer, byte_count - bytes_to_carry);
 			auto beginning = analyzed.cbegin();
 			auto size_before = content_rows.size();
-			for (auto i = analyzed.cbegin(); i < analyzed.cend(); ++i) {
-				if (*i == LINE_TERMINATOR) {
-					content_rows.push_back(std::make_pair(beginning, i));
-					beginning = i + 1;
-				}
+			auto start = analyzed.cbegin();
+			auto end = std::find(start, analyzed.cend(), LINE_TERMINATOR);
+			while (end != analyzed.cend()) {
+				content_rows.push_back(std::make_pair(start, end));
+				start = end + 1;
+				end = std::find(start, analyzed.cend(), LINE_TERMINATOR);
 			}
+
 			carry.assign(last_start_of_row, bytes_to_carry);
 
 			source_content.emplace_back(std::move(analyzed));

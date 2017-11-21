@@ -15,10 +15,14 @@ namespace executor
 	public:		
 		data_counter(std::string num): num(num),console(spdlog::stdout_color_mt(num.c_str())), count(0), started_at(std::chrono::steady_clock::now()) {}
 
-		virtual boost::optional<datasource::data_sink::entry_range> do_consume(const datasource::data_sink::entry_range& r) {
-			console->info("{3:s}: Got {0:d} log rows to analyze in batch {1:d}. Time since startup: {2:d} us", r.second - r.first, count, (-started_at.time_since_epoch() + std::chrono::steady_clock::now().time_since_epoch()).count() / 1000, num);
+		virtual data_sink::entries_range do_consume(const entries_range& entries_to_analyze, const datasource::content::entry_container& all_entries) {
+			console->info("{3:s}: Got {0:d} log rows to analyze in batch {1:d}. Time since startup: {2:d} us", 
+				std::distance(entries_to_analyze.first, entries_to_analyze.second), 
+				count, 
+				(-started_at.time_since_epoch() + std::chrono::steady_clock::now().time_since_epoch()).count() / 1000, num
+			);
 			count++;
-			return boost::optional<datasource::data_sink::entry_range>(r);
+			return entries_to_analyze;
 		}
 
 	private:
@@ -40,7 +44,7 @@ namespace executor
 
 		datasource::data_source().readfile(path, sink);*/
 
-		gui::main_window::show();
+		gui::main_window().show();
 		return 0;
 	}
 }

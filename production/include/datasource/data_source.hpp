@@ -2,39 +2,37 @@
 
 #include <memory>
 #include <deque>
-#include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <re2/re2.h>
 
 
 namespace datasource {
-	typedef std::string datatype;
-
 	class content {
 	public:
-		typedef std::pair<datatype::const_iterator, datatype::const_iterator> entry;
+		typedef std::pair<const char*, std::size_t> entry;
 		typedef std::deque<entry> entry_container;
-		typedef entry_container::const_iterator entry_iterator;
+		typedef std::vector<std::size_t> entries_journal;
 
-		boost::optional<std::pair<content::entry_iterator, content::entry_iterator>> add_data(const char* buffer, std::size_t byte_count);
+		entries_journal add_data(const char* buffer, std::size_t byte_count);
+		entry_container& get_rows();
 
 	private:
 		entry_container content_rows;
-		std::deque<datatype> source_content;
-		datatype carry;
+		std::deque<std::string> source_content;
+		std::string carry;
 	};
 
 	class data_sink {
 	public:
-		typedef std::pair<content::entry_iterator, content::entry_iterator> entry_range;
+		typedef std::pair<content::entries_journal::const_iterator, content::entries_journal::const_iterator> entries_range;
 
-		void consume(const entry_range&);
+		void consume(const entries_range&, const content::entry_container&);
 
 		void add_child(const std::shared_ptr<data_sink>& child);
 
 	protected:
-		virtual boost::optional<entry_range> do_consume(const entry_range&) = 0;
-		content::entry_container entries;
+		virtual entries_range do_consume(const entries_range& entries_to_analyze, const content::entry_container&) = 0;
+		content::entries_journal entries;
 
 	private:
 		std::vector<std::weak_ptr<data_sink> > children;
@@ -44,7 +42,7 @@ namespace datasource {
 	public:
 		grepping_data_sink(std::unique_ptr<re2::RE2>&& regex);
 
-		virtual boost::optional<entry_range> do_consume(const entry_range&);
+		virtual entries_range do_consume(const entries_range& entries_to_analyze, const content::entry_container&);
 
 	private:
 		std::unique_ptr<re2::RE2> regex;

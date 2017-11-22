@@ -16,3 +16,6 @@
 [submodule "v1.5.5"]
 	path = production/libs/nana/nana
 	url = https://github.com/cnjinhao/nana.git
+[submodule "v1.8.0"]
+	path = production/libs/lz4/lz4
+	url = https://github.com/lz4/lz4.git

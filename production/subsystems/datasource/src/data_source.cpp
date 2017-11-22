@@ -12,7 +12,7 @@ namespace datasource
 	const char LINE_TERMINATOR = '\n';
 
 	void data_source::readfile(const boost::filesystem::path& p, const std::shared_ptr<data_sink>& sink) {
-		const int BLOCK_SIZE = 1024 * 256;
+		const int BLOCK_SIZE = 1024 * 1024 * 32;
 		
 		auto ptr = std::make_shared<content>();
 		auto path = p.string();

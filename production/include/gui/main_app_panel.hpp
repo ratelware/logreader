@@ -14,7 +14,7 @@ namespace gui {
 		virtual nana::widget& get_widget();
 
 	protected:
-		virtual datasource::data_sink::entries_range main_app_panel::do_consume(const datasource::data_sink::entries_range& entries_to_analyze, const datasource::content::entry_container& all_entries);
+		virtual bool main_app_panel::should_stay(const char* start, std::size_t size);
 
 	private:
 		nana::textbox main_panel;

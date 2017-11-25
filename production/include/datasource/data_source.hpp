@@ -5,44 +5,51 @@
 #include <boost/filesystem.hpp>
 #include <re2/re2.h>
 
+#include <compressor/chunk.hpp>
+#include <compressor/compressor.hpp>
 
 namespace datasource {
+
+	class data_sink;
+
 	class content {
 	public:
-		typedef std::pair<const char*, std::size_t> entry;
-		typedef std::deque<entry> entry_container;
-		typedef std::vector<std::size_t> entries_journal;
+		content();
 
-		entries_journal add_data(const char* buffer, std::size_t byte_count);
-		entry_container& get_rows();
-
+		void add_data(const char* buffer, std::size_t byte_count);
+		data_sink* get_sink();
+		void end_stream();
 	private:
-		entry_container content_rows;
-		std::deque<std::string> source_content;
+		std::unique_ptr<data_sink> sink;
 		std::string carry;
 	};
 
 	class data_sink {
 	public:
-		typedef std::pair<content::entries_journal::const_iterator, content::entries_journal::const_iterator> entries_range;
-
-		void consume(const entries_range&, const content::entry_container&);
-
+		void consume(compressor::chunk*);
+		void consume_raw(const char*, std::size_t);
+		void consume(content&);
+		void end_stream();
 		void add_child(const std::shared_ptr<data_sink>& child);
 
+		virtual ~data_sink() {};
 	protected:
-		virtual entries_range do_consume(const entries_range& entries_to_analyze, const content::entry_container&) = 0;
-		content::entries_journal entries;
-
+		virtual bool should_stay(const char*, std::size_t) = 0;
+		std::deque<compressor::chunk> chunks;
 	private:
 		std::vector<std::weak_ptr<data_sink> > children;
+		compressor::compressor compressor;
+	};
+
+	class promiscous_sink : public data_sink {
+		virtual bool should_stay(const char*, std::size_t);
 	};
 
 	class grepping_data_sink : public data_sink {
 	public:
 		grepping_data_sink(std::unique_ptr<re2::RE2>&& regex);
 
-		virtual entries_range do_consume(const entries_range& entries_to_analyze, const content::entry_container&);
+		virtual bool should_stay(const char*, std::size_t);
 
 	private:
 		std::unique_ptr<re2::RE2> regex;
@@ -50,7 +57,7 @@ namespace datasource {
 
 	class data_source {
 	public:
-		virtual void readfile(const boost::filesystem::path& p, const std::shared_ptr<data_sink>& sink);
+		virtual std::shared_ptr<content> readfile(const boost::filesystem::path& p);
 	};
 
 }

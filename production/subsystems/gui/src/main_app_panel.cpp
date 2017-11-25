@@ -12,21 +12,8 @@ namespace gui {
 		return main_panel;
 	}
 
-	datasource::data_sink::entries_range main_app_panel::do_consume(const datasource::data_sink::entries_range& entries_to_analyze, const datasource::content::entry_container& all_entries) {
-
-		std::size_t total_size = 0;
-		for (auto i = entries_to_analyze.first; i < entries_to_analyze.second; ++i) {
-			total_size += all_entries[*i].second;
-		}
-
-		std::string result;
-		result.reserve(total_size);
-		for (auto i = entries_to_analyze.first; i < entries_to_analyze.second; ++i) {
-			result.append(all_entries[*i].first, all_entries[*i].second);
-		}
-
-		main_panel.append(result, false);
-		return entries_to_analyze;
+	bool main_app_panel::should_stay(const char* start, std::size_t size) {
+		return true;
 	}
 
 }

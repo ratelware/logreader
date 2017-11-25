@@ -19,3 +19,9 @@
 [submodule "v1.8.0"]
 	path = production/libs/lz4/lz4
 	url = https://github.com/lz4/lz4.git
+[submodule "tests/libs/turtle/turtle"]
+	path = tests/libs/turtle/turtle
+	url = https://github.com/mat007/turtle.git
+[submodule "v2.0"]
+	path = production/libs/lizard/lizard
+	url = https://github.com/inikep/lizard.git

@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(fields_proper_number_of_rows)
 	sink.consume_raw(data, 4);
 	sink.end_stream();
 }
-/*
+
 BOOST_AUTO_TEST_CASE(should_pass_all_nonfiltered_data_to_child)
 {
 	mock_sink sink;
@@ -35,14 +35,13 @@ BOOST_AUTO_TEST_CASE(should_pass_all_nonfiltered_data_to_child)
 		BOOST_CHECK_EQUAL(0, strncmp(data, "abc\n", 4));
 		return true;
 	});
-	
+
 	MOCK_EXPECT(child->should_stay).once().calls([](const char* data, std::size_t size) {
 		BOOST_CHECK_EQUAL(size, 4);
-		BOOST_CHECK_EQUAL(0, strncmp(data, "abc\n", 4));
+		BOOST_CHECK_EQUAL(0, strncmp(data, "ghi\n", 4));
 		return false;
 	});
 
 	sink.add_child(child);
 }
-*/
 BOOST_AUTO_TEST_SUITE_END()

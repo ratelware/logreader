@@ -17,14 +17,14 @@ namespace compressor {
 		const int COMPRESSION_LEVEL = 1;
 		const auto SIZE_OF_BYTE_COUNT_IN_BLOCK = sizeof(uint16_t);
 
-		void encode_stream_deallocator::operator()(Lizard_stream_t* ptr) {
+		void encode_stream_deallocator(Lizard_stream_t* ptr) {
 			Lizard_freeStream(ptr);
 		}
-		void decode_stream_deallocator::operator()(Lizard_streamDecode_t* ptr) {
+		void decode_stream_deallocator(Lizard_streamDecode_t* ptr) {
 			Lizard_freeStreamDecode(ptr);
 		}
 
-		lizard_compressor::lizard_compressor() : encode_stream(Lizard_createStream(COMPRESSION_LEVEL)), decode_stream(Lizard_createStreamDecode()) {}
+		lizard_compressor::lizard_compressor() : encode_stream(Lizard_createStream(COMPRESSION_LEVEL), encode_stream_deallocator), decode_stream(Lizard_createStreamDecode(), decode_stream_deallocator) {}
 
 		std::size_t lizard_compressor::stream_compress(const char* source, char* destination, std::size_t uncompressed_size, std::size_t compressed_capacity) {
 
@@ -39,7 +39,6 @@ namespace compressor {
 
 				written_compressed_bytes += SIZE_OF_BYTE_COUNT_IN_BLOCK;
 				auto written = Lizard_compress_continue(encode_stream.get(), begin, destination + written_compressed_bytes, current_stream_call_size, compressed_capacity - written_compressed_bytes);
-				assert(written < MAX_BYTES_PER_STREAM_CALL);
 				
 				auto size_to_write = uint16_t(written);
 				std::memcpy(size_location, &size_to_write, SIZE_OF_BYTE_COUNT_IN_BLOCK);

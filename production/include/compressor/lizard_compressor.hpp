@@ -10,16 +10,6 @@
 
 namespace compressor {
 	namespace lizard {
-		class encode_stream_deallocator {
-		public:
-			void operator()(Lizard_stream_t* ptr);
-		};
-
-		class decode_stream_deallocator {
-		public:
-			void operator()(Lizard_streamDecode_t* ptr);
-		};
-
 		class lizard_compressor : public ::compressor::compressor::impl {
 		public:
 			lizard_compressor();
@@ -28,8 +18,8 @@ namespace compressor {
 			virtual std::size_t get_max_compressed_size(std::size_t byte_count);
 
 		private:
-			std::unique_ptr<Lizard_stream_t, lizard::encode_stream_deallocator> encode_stream;
-			std::unique_ptr<Lizard_streamDecode_t, lizard::decode_stream_deallocator> decode_stream;
+			std::unique_ptr<Lizard_stream_t, void(*)(Lizard_stream_t*)> encode_stream;
+			std::unique_ptr<Lizard_streamDecode_t, void(*)(Lizard_streamDecode_t*)> decode_stream;
 		};
 	}
 }

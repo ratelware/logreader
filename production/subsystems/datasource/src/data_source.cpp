@@ -117,7 +117,6 @@ namespace datasource
 		if (chunks.empty()) {
 			chunks.push_back(compressor.get_chunk(0, bytes_of_data));
 		}
-
 		auto current_chunk = &chunks.back();
 		const char* begin = data;
 		const char* end = reinterpret_cast<const char*>(std::memchr(begin, LINE_TERMINATOR, bytes_of_data));

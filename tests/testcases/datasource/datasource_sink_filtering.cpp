@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include <boost/test/auto_unit_test.hpp>
 
 #include <turtle/mock.hpp>
@@ -44,4 +46,34 @@ BOOST_AUTO_TEST_CASE(should_pass_all_nonfiltered_data_to_child)
 
 	sink.add_child(child);
 }
+
+BOOST_AUTO_TEST_CASE(should_successfully_handle_long_strings) {
+	std::string s;
+	s.resize(32 * 1024);
+	std::iota(s.begin(), s.end(), 0);
+	s.back() = '\n';
+
+	mock_sink sink;
+	MOCK_EXPECT(sink.should_stay).returns(true);
+	sink.consume_raw(s.data(), s.size());
+	sink.end_stream();
+
+	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
+	MOCK_EXPECT(child->should_stay).returns(true);
+
+	sink.add_child(child);
+}
+
+
+
+/*
+BOOST_AUTO_TEST_CASE(should_successfully_handle_files) {
+	auto content = datasource::data_source().readfile(boost::filesystem::path("I:/Ratelware/logreader/tests/data/CMakeCache.txt"));
+
+	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
+	MOCK_EXPECT(child->should_stay).returns(true);
+
+	content->get_sink()->add_child(child);
+}*/
+
 BOOST_AUTO_TEST_SUITE_END()

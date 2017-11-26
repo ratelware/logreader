@@ -16,12 +16,12 @@ namespace datasource {
 	public:
 		content();
 
-		void add_data(const char* buffer, std::size_t byte_count);
+		void add_data(const char* buffer, std::size_t char_count);
 		data_sink* get_sink();
 		void end_stream();
 	private:
 		std::unique_ptr<data_sink> sink;
-		std::string carry;
+		std::basic_string<char> carry;
 	};
 
 	class data_sink {

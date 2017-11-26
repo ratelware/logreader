@@ -13,7 +13,7 @@
 
 namespace compressor {
 	namespace lizard {
-		const std::size_t MAX_charS_PER_STREAM_CALL = std::numeric_limits<uint16_t>::max();
+		const std::size_t MAX_CHARS_PER_STREAM_CALL = std::numeric_limits<uint16_t>::max();
 		const int COMPRESSION_LEVEL = 1;
 		const auto SIZE_OF_char_COUNT_IN_BLOCK = sizeof(uint16_t);
 
@@ -32,7 +32,7 @@ namespace compressor {
 			auto begin = source;
 			uint16_t current_stream_call_size = 0;
 			for (std::size_t chars_to_compress = uncompressed_size; chars_to_compress > 0; chars_to_compress -= current_stream_call_size) {
-				current_stream_call_size = (uncompressed_size > MAX_charS_PER_STREAM_CALL) ? MAX_charS_PER_STREAM_CALL : uncompressed_size;
+				current_stream_call_size = (uncompressed_size > MAX_CHARS_PER_STREAM_CALL) ? MAX_CHARS_PER_STREAM_CALL : uncompressed_size;
 				std::memcpy(destination, &current_stream_call_size, SIZE_OF_char_COUNT_IN_BLOCK);
 				written_compressed_chars += SIZE_OF_char_COUNT_IN_BLOCK;
 				auto size_location = destination + written_compressed_chars;

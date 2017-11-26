@@ -17,6 +17,7 @@ namespace compressor {
 		chunk get_chunk(std::size_t starting_at, std::size_t char_count);
 
 		void reset_stream();
+		void preserve_dictionaries();
 
 		~compressor();
 	private:

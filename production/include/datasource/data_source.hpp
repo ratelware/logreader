@@ -31,6 +31,7 @@ namespace datasource {
 		void consume(content&);
 		void end_stream();
 		void add_child(const std::shared_ptr<data_sink>& child);
+		void preserve_dictionaries();
 
 		virtual ~data_sink() {};
 	protected:

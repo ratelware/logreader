@@ -11,9 +11,11 @@
 
 namespace compressor {
 	namespace lz4 {
-		const std::size_t MAX_charS_PER_STREAM_CALL = std::numeric_limits<uint16_t>::max();
+		const std::size_t MAX_CHARS_PER_STREAM_CALL = std::numeric_limits<uint16_t>::max();
 		const int COMPRESSION_LEVEL = 1;
 		const auto SIZE_OF_char_COUNT_IN_BLOCK = sizeof(uint16_t);
+		const int LZ4_DICTIONARY_SIZE = 64 * 1024;
+
 
 		void encode_stream_deallocator(LZ4_stream_t* ptr) {
 			LZ4_freeStream(ptr);
@@ -22,7 +24,10 @@ namespace compressor {
 			LZ4_freeStreamDecode(ptr);
 		}
 
-		lz4_compressor::lz4_compressor() : encode_stream(LZ4_createStream(), encode_stream_deallocator), decode_stream(LZ4_createStreamDecode(), decode_stream_deallocator) {
+		lz4_compressor::lz4_compressor() :
+			encode_stream(LZ4_createStream(), encode_stream_deallocator), 
+			decode_stream(LZ4_createStreamDecode(), decode_stream_deallocator), 
+			dictionary(std::make_unique<char[]>(LZ4_DICTIONARY_SIZE)) {
 		}
 
 		std::size_t lz4_compressor::stream_compress(const char* source, char* destination, std::size_t uncompressed_size, std::size_t compressed_capacity) {
@@ -31,8 +36,8 @@ namespace compressor {
 			auto begin = source;
 			uint16_t current_stream_call_size = 0;
 			for (std::size_t chars_to_compress = uncompressed_size; chars_to_compress > 0; chars_to_compress -= current_stream_call_size) {
-				current_stream_call_size = (uncompressed_size > MAX_charS_PER_STREAM_CALL) ? MAX_charS_PER_STREAM_CALL : uncompressed_size;
-				auto written = LZ4_compress_continue(encode_stream.get(), begin, reinterpret_cast<char*>(destination + written_compressed_chars), current_stream_call_size);
+				current_stream_call_size = (uncompressed_size > MAX_CHARS_PER_STREAM_CALL) ? MAX_CHARS_PER_STREAM_CALL : uncompressed_size;
+				auto written = LZ4_compress_fast_continue(encode_stream.get(), begin, reinterpret_cast<char*>(destination + written_compressed_chars), current_stream_call_size, compressed_capacity, 1);
 				written_compressed_chars += written;
 				begin += current_stream_call_size;
 			}
@@ -42,6 +47,7 @@ namespace compressor {
 		}
 
 		std::size_t lz4_compressor::decompress_chunk(chunk * c, char* destination) {
+			reset_stream();
 			char* data = c->compressed_data.data();
 			std::size_t written_uncompressed_chars = 0;
 			std::size_t read_compressed_chars = 0;
@@ -81,6 +87,10 @@ namespace compressor {
 		void lz4_compressor::reset_stream() {
 			LZ4_resetStream(encode_stream.get());
 			LZ4_setStreamDecode(decode_stream.get(), nullptr, 0);
+		}
+
+		void lz4_compressor::preserve_dictionaries() {
+			LZ4_saveDict(encode_stream.get(), dictionary.get(), LZ4_DICTIONARY_SIZE);
 		}
 
 	}

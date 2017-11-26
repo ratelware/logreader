@@ -26,4 +26,8 @@ namespace compressor {
 	void compressor::reset_stream() {
 		pimpl->reset_stream();
 	}
+
+	void compressor::preserve_dictionaries() {
+		pimpl->preserve_dictionaries();
+	}
 }

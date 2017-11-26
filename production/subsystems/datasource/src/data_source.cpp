@@ -15,7 +15,7 @@ namespace datasource
 {
 	const char LINE_TERMINATOR = '\n';
 	const std::size_t READ_BLOCK_SIZE = 1024 * 1024 * 32;
-	const auto DEFAULT_UNCOMPRESSED_charS_PER_CHUNK = 512 * 1024;
+	const auto DEFAULT_UNCOMPRESSED_CHARS_PER_CHUNK = 512 * 1024;
 
 	std::shared_ptr<content> data_source::readfile(const boost::filesystem::path& p) {
 		auto ptr = std::make_shared<content>();
@@ -62,6 +62,7 @@ namespace datasource
 		std::size_t chars_to_carry = after_last_token - last_start_of_row;
 		carry.append(buffer, char_count - chars_to_carry);
 		sink->consume_raw(carry.data(), carry.size());
+		sink->preserve_dictionaries();
 		carry.assign(last_start_of_row, chars_to_carry);
 		/*
 		std::size_t first_char(0);
@@ -83,6 +84,7 @@ namespace datasource
 		if (!carry.empty()) {
 			carry.push_back(LINE_TERMINATOR);
 			sink->consume_raw(carry.data(), carry.size());
+			sink->preserve_dictionaries();
 		}
 		sink->end_stream();
 	}
@@ -111,7 +113,6 @@ namespace datasource
 	}
 
 	void data_sink::consume(compressor::chunk* c) {
-		compressor.reset_stream();
 		std::vector<char> data(c->uncompressed_chars_available);
 		auto compressed_size = compressor.decompress_chunk(c, data.data());
 		assert(compressed_size == c->compressed_chars_available);
@@ -120,7 +121,7 @@ namespace datasource
 
 	void data_sink::consume_raw(const char* data, std::size_t chars_of_data) {
 		if (chunks.empty()) {
-			chunks.push_back(compressor.get_chunk(0, DEFAULT_UNCOMPRESSED_charS_PER_CHUNK));
+			chunks.push_back(compressor.get_chunk(0, DEFAULT_UNCOMPRESSED_CHARS_PER_CHUNK));
 		}
 		auto current_chunk = &chunks.back();
 		const char* begin = data;
@@ -131,7 +132,7 @@ namespace datasource
 			if (should_stay(begin, line_length)) {
 				auto compressed_max_line_length = compressor.get_max_compressed_size(line_length);
 				if (current_chunk->compressed_data.size() - current_chunk->compressed_chars_available < compressed_max_line_length) {
-					chunks.push_back(compressor.get_chunk(current_chunk->first_char_number + current_chunk->uncompressed_chars_available, DEFAULT_UNCOMPRESSED_charS_PER_CHUNK));
+					chunks.push_back(compressor.get_chunk(current_chunk->first_char_number + current_chunk->uncompressed_chars_available, DEFAULT_UNCOMPRESSED_CHARS_PER_CHUNK));
 					current_chunk = &chunks.back();
 					compressor.reset_stream();
 				}
@@ -162,6 +163,10 @@ namespace datasource
 			c.compressed_data.resize(c.compressed_chars_available);
 			c.compressed_data.shrink_to_fit();
 		}
+	}
+
+	void data_sink::preserve_dictionaries() {
+		compressor.preserve_dictionaries();
 	}
 
 	grepping_data_sink::grepping_data_sink(std::unique_ptr<re2::RE2>&& regex): regex(std::move(regex)) {}

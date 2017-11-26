@@ -1,9 +1,10 @@
 #include <compressor/compressor.hpp>
 #include <compressor/compressor_impl.hpp>
 #include <compressor/lizard_compressor.hpp>
+#include <compressor/lz4_compressor.hpp>
 
 namespace compressor {
-	compressor::compressor() : pimpl(std::make_unique<::compressor::lizard::lizard_compressor>()) {}
+	compressor::compressor() : pimpl(std::make_unique<::compressor::lz4::lz4_compressor>()) {}
 	compressor::~compressor() {}
 
 	std::size_t compressor::stream_compress(const char* source, char* destination, std::size_t uncompressed_size, std::size_t compressed_capacity) {

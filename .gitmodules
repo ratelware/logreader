@@ -25,3 +25,6 @@
 [submodule "v2.0"]
 	path = production/libs/lizard/lizard
 	url = https://github.com/inikep/lizard.git
+[submodule "production/libs/lz4/lz4"]
+	path = production/libs/lz4/lz4
+	url = https://github.com/lz4/lz4.git

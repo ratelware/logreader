@@ -17,7 +17,6 @@ BOOST_AUTO_TEST_CASE(fields_proper_number_of_rows)
 	const char* data = "abc\n";
 	MOCK_EXPECT(sink.should_stay).once().with(data, 4).returns(true);
 	sink.consume_raw(data, 4);
-	sink.end_stream();
 }
 
 BOOST_AUTO_TEST_CASE(should_pass_all_nonfiltered_data_to_child)
@@ -28,7 +27,6 @@ BOOST_AUTO_TEST_CASE(should_pass_all_nonfiltered_data_to_child)
 	MOCK_EXPECT(sink.should_stay).once().with(data + 4, 4).returns(false);
 	MOCK_EXPECT(sink.should_stay).once().with(data + 8, 4).returns(true);
 	sink.consume_raw(data, 12);
-	sink.end_stream();
 
 	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
 
@@ -56,7 +54,6 @@ BOOST_AUTO_TEST_CASE(should_successfully_handle_long_strings) {
 	mock_sink sink;
 	MOCK_EXPECT(sink.should_stay).returns(true);
 	sink.consume_raw(s.data(), s.size());
-	sink.end_stream();
 
 	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
 	MOCK_EXPECT(child->should_stay).returns(true);

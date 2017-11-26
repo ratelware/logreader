@@ -28,7 +28,7 @@ namespace gui {
 
 	void main_window::analyze_file(const std::string& filename) {
 		auto content = datasource::data_source().readfile(boost::filesystem::path(filename));
-		main->consume(*content);
+		content->get_sink()->add_child(main);
 	}
 
 	void main_window::show() {

@@ -13,7 +13,7 @@ namespace gui {
 	}
 
 	bool main_app_panel::should_stay(const char* start, std::size_t size) {
-		return true;
+		return false;
 	}
 
 }

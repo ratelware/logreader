@@ -62,7 +62,6 @@ namespace datasource
 		std::size_t chars_to_carry = after_last_token - last_start_of_row;
 		carry.append(buffer, char_count - chars_to_carry);
 		sink->consume_raw(carry.data(), carry.size());
-		sink->preserve_dictionaries();
 		carry.assign(last_start_of_row, chars_to_carry);
 		/*
 		std::size_t first_char(0);
@@ -84,9 +83,7 @@ namespace datasource
 		if (!carry.empty()) {
 			carry.push_back(LINE_TERMINATOR);
 			sink->consume_raw(carry.data(), carry.size());
-			sink->preserve_dictionaries();
 		}
-		sink->end_stream();
 	}
 
 	bool promiscous_sink::should_stay(const char*, std::size_t) {
@@ -109,7 +106,6 @@ namespace datasource
 		for (auto& c : cs->chunks) {
 			consume(&c);
 		}
-		end_stream();
 	}
 
 	void data_sink::consume(compressor::chunk* c) {
@@ -133,6 +129,8 @@ namespace datasource
 				auto compressed_max_line_length = compressor.get_max_compressed_size(line_length);
 				if (current_chunk->compressed_data.size() - current_chunk->compressed_chars_available < compressed_max_line_length) {
 					chunks.push_back(compressor.get_chunk(current_chunk->first_char_number + current_chunk->uncompressed_chars_available, DEFAULT_UNCOMPRESSED_CHARS_PER_CHUNK));
+					current_chunk->compressed_data.resize(current_chunk->compressed_chars_available);
+					current_chunk->compressed_data.shrink_to_fit();
 					current_chunk = &chunks.back();
 					compressor.reset_stream();
 				}
@@ -156,16 +154,6 @@ namespace datasource
 		}
 
 		assert(analyzed_chars == chars_of_data);
-	}
-
-	void data_sink::end_stream() {
-		for (auto& c : chunks) {
-			c.compressed_data.resize(c.compressed_chars_available);
-			c.compressed_data.shrink_to_fit();
-		}
-	}
-
-	void data_sink::preserve_dictionaries() {
 		compressor.preserve_dictionaries();
 	}
 

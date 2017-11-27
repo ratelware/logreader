@@ -10,7 +10,7 @@ namespace compressor {
 		class impl;
 		compressor();
 
-		std::size_t stream_compress(const char* source, char* destination, std::size_t uncompressed_size, std::size_t compressed_capacity);
+		std::size_t compress_into_chunk(const char* source, std::size_t uncompressed_size, chunk* destination);
 		std::size_t decompress_chunk(chunk*, char* destination);
 
 		std::size_t get_max_compressed_size(std::size_t char_count);

@@ -5,7 +5,7 @@
 namespace compressor {
 	class compressor::impl {
 	public:
-		virtual std::size_t stream_compress(const char* source, char* destination, std::size_t uncompressed_size, std::size_t compressed_capacity) = 0;
+		virtual std::size_t compress_into_chunk(const char* source, std::size_t uncompressed_size, chunk* destination) = 0;
 		virtual std::size_t decompress_chunk(chunk* c, char* destination) = 0;
 		virtual std::size_t get_max_compressed_size(std::size_t char_count) = 0;		
 

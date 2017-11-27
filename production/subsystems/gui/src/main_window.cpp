@@ -4,6 +4,8 @@
 #include <nana/gui/filebox.hpp>
 #include <nana/gui/widgets/panel.hpp>
 
+#include <datasource/data_source.hpp>
+
 namespace {
 	const std::string APP_NAME = "Logreader";
 	const std::string APP_VERSION = "0.2";

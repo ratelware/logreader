@@ -7,8 +7,8 @@ namespace compressor {
 	compressor::compressor() : pimpl(std::make_unique<::compressor::lz4::lz4_compressor>()) {}
 	compressor::~compressor() {}
 
-	std::size_t compressor::stream_compress(const char* source, char* destination, std::size_t uncompressed_size, std::size_t compressed_capacity) {
-		return pimpl->stream_compress(source, destination, uncompressed_size, compressed_capacity);
+	std::size_t compressor::compress_into_chunk(const char* source, std::size_t uncompressed_size, chunk* destination) {
+		return pimpl->compress_into_chunk(source, uncompressed_size, destination);
 	}
 
 	std::size_t compressor::decompress_chunk(chunk* c, char* destination) {

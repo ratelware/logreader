@@ -4,7 +4,7 @@
 
 #include <turtle/mock.hpp>
 
-#include <datasource/data_source.hpp>
+#include <datasource/data_sink.hpp>
 
 MOCK_BASE_CLASS(mock_sink, datasource::data_sink) {
 	MOCK_METHOD(should_stay, 2);

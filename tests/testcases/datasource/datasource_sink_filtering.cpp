@@ -6,6 +6,14 @@
 
 #include <datasource/data_sink.hpp>
 
+namespace {
+	std::function<bool(const char*)> strmatch(const char* other, int size) {
+		return [other, size](const char* a) {
+			return !strncmp(a, other, size);
+		};
+	}
+}
+
 MOCK_BASE_CLASS(mock_sink, datasource::data_sink) {
 	MOCK_METHOD(should_stay, 2);
 };
@@ -14,19 +22,22 @@ BOOST_AUTO_TEST_SUITE(compression_roundtrip)
 BOOST_AUTO_TEST_CASE(fields_proper_number_of_rows)
 {
 	mock_sink sink;
-	const char* data = "abc\n";
-	MOCK_EXPECT(sink.should_stay).once().with(data, 4).returns(true);
-	sink.consume_raw(data, 4);
+	char* data = "abc\n";
+	MOCK_EXPECT(sink.should_stay).once().with(strmatch(data, 4), 4).returns(true);
+
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{data, data + 4}, nullptr };
+	sink.consume_raw(&b);
 }
 
 BOOST_AUTO_TEST_CASE(should_pass_all_nonfiltered_data_to_child)
 {
 	mock_sink sink;
-	const char* data = "abc\ndef\n\ghi\n";
-	MOCK_EXPECT(sink.should_stay).once().with(data, 4).returns(true);
-	MOCK_EXPECT(sink.should_stay).once().with(data + 4, 4).returns(false);
-	MOCK_EXPECT(sink.should_stay).once().with(data + 8, 4).returns(true);
-	sink.consume_raw(data, 12);
+	char* data = "abc\ndef\n\ghi\n";
+	MOCK_EXPECT(sink.should_stay).once().with(strmatch("abc\n", 4), 4).returns(true);
+	MOCK_EXPECT(sink.should_stay).once().with(strmatch("def\n", 4), 4).returns(false);
+	MOCK_EXPECT(sink.should_stay).once().with(strmatch("ghi\n", 4), 4).returns(true);
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{data, data + 12}, nullptr };
+	sink.consume_raw(&b);
 
 	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
 
@@ -51,9 +62,10 @@ BOOST_AUTO_TEST_CASE(should_successfully_handle_long_strings) {
 	std::iota(s.begin(), s.end(), 0);
 	s.back() = '\n';
 
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{s.begin(), s.end()}, nullptr };
 	mock_sink sink;
 	MOCK_EXPECT(sink.should_stay).returns(true);
-	sink.consume_raw(s.data(), s.size());
+	sink.consume_raw(&b);
 
 	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
 	MOCK_EXPECT(child->should_stay).returns(true);

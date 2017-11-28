@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <string>
+#include <vector>
 
 namespace datasource {
 	class data_sink;
@@ -15,6 +15,6 @@ namespace datasource {
 		void end_stream();
 	private:
 		std::unique_ptr<data_sink> sink;
-		std::basic_string<char> carry;
+		std::vector<char> carry;
 	};
 }

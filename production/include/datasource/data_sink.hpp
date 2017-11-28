@@ -5,15 +5,15 @@
 #include <re2/re2.h>
 #include <re2/stringpiece.h>
 
+#include <datasource/content.hpp>
+
 #include <compressor/compressor.hpp>
 
 namespace datasource {
-	class content;
-
 	class data_sink {
 	public:
 		void consume(compressor::chunk*);
-		void consume_raw(const char*, std::size_t);
+		void consume_raw(compressor::uncompressed_chunk*);
 		void consume(content&);
 		void add_child(const std::shared_ptr<data_sink>& child);
 
@@ -23,6 +23,7 @@ namespace datasource {
 		std::deque<compressor::chunk> chunks;
 	private:
 		compressor::chunk* get_active_chunk(std::size_t bytes_to_compress);
+		std::size_t get_previous_line_number();
 
 		std::vector<std::weak_ptr<data_sink> > children;
 		compressor::compressor compressor;

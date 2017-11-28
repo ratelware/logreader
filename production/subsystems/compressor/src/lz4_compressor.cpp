@@ -37,15 +37,15 @@ namespace compressor {
 			dictionary(std::make_unique<char[]>(LZ4_DICTIONARY_SIZE)) {
 		}
 
-		std::size_t lz4_compressor::compress_into_chunk(const char* source, std::size_t uncompressed_size, chunk* destination) {
+		std::size_t lz4_compressor::compress_into_chunk(uncompressed_block* block, chunk* destination) {
 			std::size_t written_compressed_chars = 0;
 			std::size_t written_uncompressed_chars = 0;
 			char* target = destination->compressed_data.data() + destination->written_compressed_chars;
-			while (written_uncompressed_chars < uncompressed_size) {
-				std::size_t current_block_size = get_uncompressed_block_size(uncompressed_size - written_uncompressed_chars);
+			while (written_uncompressed_chars < block->size) {
+				std::size_t current_block_size = get_uncompressed_block_size(block->size - written_uncompressed_chars);
 				written_compressed_chars += LZ4_compress_fast_continue(
 					encode_stream.get(), 
-					source + written_uncompressed_chars, 
+					block->start + written_uncompressed_chars, 
 					target + written_compressed_chars, 
 					current_block_size,
 					destination->compressed_data.size() - destination->written_compressed_chars - written_compressed_chars, 
@@ -59,11 +59,12 @@ namespace compressor {
 
 			destination->compressed_block_sizes.push_back(written_compressed_chars);
 			destination->uncompressed_block_sizes.push_back(written_uncompressed_chars);
+			destination->block_numbers->push_back(block->number);
 
 			return written_compressed_chars;
 		}
 
-		std::size_t lz4_compressor::decompress_chunk(chunk * c, char* destination) {
+		std::size_t lz4_compressor::decompress_chunk(chunk* c, uncompressed_chunk* destination) {
 			assert(c->compressed_block_sizes.size() == c->uncompressed_block_sizes.size());
 			
 			LZ4_setStreamDecode(decode_stream.get(), nullptr, 0);
@@ -75,7 +76,7 @@ namespace compressor {
 				auto read_chars = LZ4_decompress_safe_continue(
 					decode_stream.get(),
 					c->compressed_data.data() + read_compressed_chars,
-					destination + written_uncompressed_chars,
+					destination->data.data() + written_uncompressed_chars,
 					chars_to_read,
 					c->written_uncompressed_chars - written_uncompressed_chars
 				);

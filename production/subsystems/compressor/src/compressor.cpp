@@ -7,11 +7,11 @@ namespace compressor {
 	compressor::compressor() : pimpl(std::make_unique<::compressor::lz4::lz4_compressor>()) {}
 	compressor::~compressor() {}
 
-	std::size_t compressor::compress_into_chunk(const char* source, std::size_t uncompressed_size, chunk* destination) {
-		return pimpl->compress_into_chunk(source, uncompressed_size, destination);
+	std::size_t compressor::compress_into_chunk(uncompressed_block* block, chunk* destination) {
+		return pimpl->compress_into_chunk(block, destination);
 	}
 
-	std::size_t compressor::decompress_chunk(chunk* c, char* destination) {
+	std::size_t compressor::decompress_chunk(chunk* c, uncompressed_chunk* destination) {
 		return pimpl->decompress_chunk(c, destination);
 	}
 
@@ -20,7 +20,7 @@ namespace compressor {
 	}
 
 	chunk compressor::get_chunk(std::size_t starting_at, std::size_t char_count) {
-		return chunk{ starting_at, 0, 0, std::vector<char>(get_max_compressed_size(char_count)), std::vector<uint16_t>(), std::vector<uint16_t>() };
+		return chunk{ starting_at, 0, 0, std::vector<char>(get_max_compressed_size(char_count)), std::vector<uint16_t>(), std::vector<uint16_t>(), std::make_shared<std::vector<std::size_t> >() };
 	}
 
 	void compressor::reset_stream() {

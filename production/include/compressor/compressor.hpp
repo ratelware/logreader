@@ -10,14 +10,14 @@ namespace compressor {
 		class impl;
 		compressor();
 
-		std::size_t compress_into_chunk(const char* source, std::size_t uncompressed_size, chunk* destination);
-		std::size_t decompress_chunk(chunk*, char* destination);
+		std::size_t compress_into_chunk(uncompressed_block* block, chunk* destination);
+		std::size_t decompress_chunk(chunk*, uncompressed_chunk*);
 
 		std::size_t get_max_compressed_size(std::size_t char_count);
 		chunk get_chunk(std::size_t starting_at, std::size_t char_count);
 
 		void reset_stream();
-		void preserve_dictionaries();
+		void preserve_dictionaries();  
 
 		~compressor();
 	private:

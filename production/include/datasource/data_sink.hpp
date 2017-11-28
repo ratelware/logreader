@@ -17,7 +17,7 @@ namespace datasource {
 		void consume(content&);
 		void add_child(const std::shared_ptr<data_sink>& child);
 
-		virtual ~data_sink() {};
+		virtual ~data_sink();
 	protected:
 		virtual bool should_stay(const char*, std::size_t) = 0;
 		std::deque<compressor::chunk> chunks;
@@ -31,6 +31,16 @@ namespace datasource {
 
 	class promiscous_sink : public data_sink {
 		virtual bool should_stay(const char*, std::size_t);
+	};
+
+	class substring_data_sink : public data_sink {
+	public:
+		substring_data_sink(const std::string& match);
+
+		virtual bool should_stay(const char*, std::size_t);
+
+	private:
+		std::string match;
 	};
 
 	class grepping_data_sink : public data_sink {

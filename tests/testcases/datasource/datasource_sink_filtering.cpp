@@ -74,15 +74,25 @@ BOOST_AUTO_TEST_CASE(should_successfully_handle_long_strings) {
 }
 
 
+BOOST_AUTO_TEST_CASE(two_layers_of_regexes_should_go_fine) {
+	std::string s("abc\ndef\n\gha\njkl\nabn\n");
 
-/*
-BOOST_AUTO_TEST_CASE(should_successfully_handle_files) {
-	auto content = datasource::data_source().readfile(boost::filesystem::path("I:/Ratelware/logreader/tests/data/CMakeCache.txt"));
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{s.begin(), s.end()}, nullptr };
+	datasource::promiscous_sink root_sink;
 
-	std::shared_ptr<mock_sink> child = std::make_shared<mock_sink>();
-	MOCK_EXPECT(child->should_stay).returns(true);
+	root_sink.consume_raw(&b);
+	std::shared_ptr<datasource::substring_data_sink> filter1 = std::make_shared<datasource::substring_data_sink>("a");
+	std::shared_ptr<datasource::substring_data_sink> filter2 = std::make_shared<datasource::substring_data_sink>("b");
 
-	content->get_sink()->add_child(child);
-}*/
+	root_sink.add_child(filter1);
+	filter1->add_child(filter2);
+
+	std::shared_ptr<mock_sink> bottom_filter = std::make_shared<mock_sink>();
+
+	MOCK_EXPECT(bottom_filter->should_stay).once().with(strmatch("abc\n", 4), 4).returns(false);
+	MOCK_EXPECT(bottom_filter->should_stay).once().with(strmatch("abn\n", 4), 4).returns(true);
+
+	filter2->add_child(bottom_filter);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,4 +1,5 @@
 #include <numeric>
+#include <random>
 
 #include <boost/test/auto_unit_test.hpp>
 
@@ -95,4 +96,50 @@ BOOST_AUTO_TEST_CASE(two_layers_of_regexes_should_go_fine) {
 	filter2->add_child(bottom_filter);
 }
 
+BOOST_AUTO_TEST_CASE(data_view_allows_to_read_all_data_even_more_than_requested) {
+	std::string s("abc\ndef\n\gha\njkl\nabn\n");
+
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{s.begin(), s.end()}, nullptr };
+	datasource::promiscous_sink root_sink;
+
+	root_sink.consume_raw(&b);
+	std::shared_ptr<datasource::substring_data_sink> filter1 = std::make_shared<datasource::substring_data_sink>("a");
+
+	root_sink.add_child(filter1);
+	auto view(filter1->get_view());
+
+	auto chunk = view->get_bytes(0, 10);
+	BOOST_CHECK_EQUAL(chunk[0]->data.size(), 12);
+}
+
+BOOST_AUTO_TEST_CASE(data_view_can_return_less_bytes_if_no_more_available) {
+	std::string s("abc\ndef\n\gha\njkl\nabn\n");
+
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{s.begin(), s.end()}, nullptr };
+	datasource::promiscous_sink root_sink;
+
+	root_sink.consume_raw(&b);
+	std::shared_ptr<datasource::substring_data_sink> filter1 = std::make_shared<datasource::substring_data_sink>("a");
+
+	root_sink.add_child(filter1);
+	auto view(filter1->get_view());
+
+	auto chunk = view->get_bytes(0, 20);
+	BOOST_CHECK_EQUAL(chunk[0]->data.size(), 12);
+}
+/*
+BOOST_AUTO_TEST_CASE(should_return_content_of_all_compressed_chunks_as_single_uncompressed_chunk) {
+	std::string s;
+	s.resize(32 * 1024 * 1024);
+	std::mt19937 rng((std::random_device())());
+	std::generate_n(s.begin(), s.size(), rng);
+	std::shuffle(s.begin(), s.end(), rng);
+	s.back() = '\n';
+	compressor::uncompressed_chunk b{ 0, std::vector<char>{s.begin(), s.end()}, nullptr };
+	datasource::promiscous_sink sink;
+	sink.consume_raw(&b);
+
+	auto chunk = sink.get_view()->get_bytes(0, 1024 * 1024);
+	BOOST_CHECK_GT(chunk.data.size(), 1024 * 1024);
+}*/
 BOOST_AUTO_TEST_SUITE_END()

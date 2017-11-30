@@ -6,6 +6,7 @@
 #include <re2/stringpiece.h>
 
 #include <datasource/content.hpp>
+#include <datasource/data_view.hpp>
 
 #include <compressor/compressor.hpp>
 
@@ -16,6 +17,8 @@ namespace datasource {
 		void consume_raw(compressor::uncompressed_chunk*);
 		void consume(content&);
 		void add_child(const std::shared_ptr<data_sink>& child);
+
+		std::unique_ptr<data_view> get_view();
 
 		virtual ~data_sink();
 	protected:

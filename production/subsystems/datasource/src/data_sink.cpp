@@ -2,7 +2,7 @@
 
 #include <datasource/constants.hpp>
 #include <datasource/data_sink.hpp>
-
+#include <datasource/data_view.hpp>
 
 namespace datasource {
 	bool promiscous_sink::should_stay(const char*, std::size_t) {
@@ -20,6 +20,10 @@ namespace datasource {
 
 		for (auto c : chunks)
 			child->consume(&c);
+	}
+
+	std::unique_ptr<data_view> data_sink::get_view() {
+		return std::make_unique<compressed_view>(chunks);
 	}
 
 	void data_sink::consume(content& content) {

@@ -9,6 +9,8 @@
 #include <compressor/chunk.hpp>
 #include <compressor/compressor.hpp>
 
+#include <datasource/cache.hpp>
+
 namespace datasource {
 	const std::size_t MAX_CACHE_SIZE = 10;
 
@@ -28,7 +30,7 @@ namespace datasource {
 
 	private: 
 		std::deque<compressor::chunk>& chunks;
-		std::map<std::size_t, std::shared_ptr<compressor::uncompressed_chunk>> cache;
+		cache<std::size_t, std::shared_ptr<compressor::uncompressed_chunk> > local_memory;
 		compressor::compressor compressor;
 	};
 

@@ -127,10 +127,10 @@ BOOST_AUTO_TEST_CASE(data_view_can_return_less_bytes_if_no_more_available) {
 	auto chunk = view->get_bytes(0, 20);
 	BOOST_CHECK_EQUAL(chunk[0]->data.size(), 12);
 }
-/*
+
 BOOST_AUTO_TEST_CASE(should_return_content_of_all_compressed_chunks_as_single_uncompressed_chunk) {
 	std::string s;
-	s.resize(32 * 1024 * 1024);
+	s.resize(2 * 1024 * 1024);
 	std::mt19937 rng((std::random_device())());
 	std::generate_n(s.begin(), s.size(), rng);
 	std::shuffle(s.begin(), s.end(), rng);
@@ -139,7 +139,8 @@ BOOST_AUTO_TEST_CASE(should_return_content_of_all_compressed_chunks_as_single_un
 	datasource::promiscous_sink sink;
 	sink.consume_raw(&b);
 
-	auto chunk = sink.get_view()->get_bytes(0, 1024 * 1024);
-	BOOST_CHECK_GT(chunk.data.size(), 1024 * 1024);
-}*/
+	auto chunks = sink.get_view()->get_bytes(0, 800 * 1024);
+	auto total_size = std::accumulate(chunks.begin(), chunks.end(), 0, [](std::size_t acc, std::shared_ptr<compressor::uncompressed_chunk>& c) { return acc + c->data.size(); });
+	BOOST_CHECK_GT(total_size, 800 * 1024);
+}
 BOOST_AUTO_TEST_SUITE_END()

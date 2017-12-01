@@ -3,6 +3,7 @@
 #include <nana/gui.hpp>
 #include <nana/gui/widgets/label.hpp>
 
+
 #include <gui/action_handler.hpp>
 #include <gui/menu_bar.hpp>
 #include <gui/main_app_panel.hpp>

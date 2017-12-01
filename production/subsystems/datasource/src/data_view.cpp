@@ -1,4 +1,5 @@
 #include <numeric>
+#include <cassert>
 
 #include <datasource/data_view.hpp>
 
@@ -8,6 +9,7 @@ namespace datasource {
 	compressed_view::compressed_view(std::deque<compressor::chunk>& c): chunks(c), local_memory(MAX_CACHE_SIZE) {}
 
 	data_view::chunks compressed_view::get_bytes(std::size_t start, std::size_t end) {
+		assert(start < end);
 		auto first = chunks.begin();
 		while (first->first_char_number < start) ++first;
 
